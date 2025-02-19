@@ -1,0 +1,43 @@
+# Python
+*.pyc
+*.pyo
+__pycache__/
+
+# Django
+*.log
+*.sqlite3
+db.sqlite3
+/media
+/static
+*.pot
+*.pyc
+
+# Virtual Environment
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# Python distribution files
+*.egg
+*.egg-info
+dist/
+build/
+
+# IDEs and Editors
+.idea/
+.vscode/
+
+# OS-specific files
+.DS_Store
+Thumbs.db
+
+# Coverage reports
+.coverage
+.coverage.*
+*.coveragerc
+
+# Django migrations
+*/migrations/*
+!*/migrations/__init__.py
