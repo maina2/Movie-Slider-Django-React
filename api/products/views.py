@@ -5,6 +5,8 @@ from django.shortcuts import get_object_or_404
 from .models import Product, Category
 from .serializers import ProductSerializer, CategorySerializer
 from rest_framework import viewsets
+from rest_framework import status
+
 
 
 class ProductViewSet(viewsets.ModelViewSet):
@@ -17,6 +19,13 @@ class ProductViewSet(viewsets.ModelViewSet):
             return [IsAdminUser()]
         return super().get_permissions()
 
+class ProductBulkCreateView(APIView):
+    def post(self, request):
+        serializer = ProductSerializer(data=request.data, many=True)  # Enable bulk creation
+        if serializer.is_valid():
+            serializer.save()
+            return Response(serializer.data, status=status.HTTP_201_CREATED)
+        return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
 
 class CategoryProductsView(APIView):
     permission_classes = [AllowAny]  # Everyone can view categories and products

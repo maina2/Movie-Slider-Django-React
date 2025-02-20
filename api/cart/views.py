@@ -1,35 +1,26 @@
-from rest_framework import viewsets
-from rest_framework.permissions import IsAuthenticated
+from rest_framework import generics, permissions
 from .models import Cart
 from .serializers import CartSerializer
 from products.models import Product
-from django.shortcuts import get_object_or_404
 
-class CartViewSet(viewsets.ModelViewSet):
-    queryset = Cart.objects.all()
+# View to list and create cart items
+class CartListCreateView(generics.ListCreateAPIView):
     serializer_class = CartSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can access
 
     def get_queryset(self):
+        # Return cart items for the logged-in user
         return Cart.objects.filter(user=self.request.user)
 
-    def create(self, request, *args, **kwargs):
-        product_id = request.data.get('product')
-        product = get_object_or_404(Product, id=product_id)
-        quantity = request.data.get('quantity', 1)
-        cart_item, created = Cart.objects.get_or_create(
-            user=request.user, product=product,
-            defaults={'quantity': quantity}
-        )
-        if not created:
-            cart_item.quantity += int(quantity)
-            cart_item.save()
-        serializer = self.get_serializer(cart_item)
-        return Response(serializer.data)
+    def perform_create(self, serializer):
+        # Automatically set the user to the logged-in user when creating a cart item
+        serializer.save(user=self.request.user)
 
-    def update(self, request, *args, **kwargs):
-        cart_item = self.get_object()
-        cart_item.quantity = request.data.get('quantity', cart_item.quantity)
-        cart_item.save()
-        serializer = self.get_serializer(cart_item)
-        return Response(serializer.data)
+# View to retrieve, update, and delete a specific cart item
+class CartRetrieveUpdateDestroyView(generics.RetrieveUpdateDestroyAPIView):
+    serializer_class = CartSerializer
+    permission_classes = [permissions.IsAuthenticated]  # Only authenticated users can access
+
+    def get_queryset(self):
+        # Return cart items for the logged-in user
+        return Cart.objects.filter(user=self.request.user)
